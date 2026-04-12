@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "301075644463",
+    "project_id": "backend-golang-36784",
+    "storage_bucket": "backend-golang-36784.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:301075644463:android:f8e2eef95415dbba1546da",
+        "android_client_info": {
+          "package_name": "com.example.pasar_malam"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "301075644463-rhcai8glskr8v5vp88hq58ffj0m8cvla.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUSkOmU-fN7djEGXbHnNK1t-dr9oGaY3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "301075644463-rhcai8glskr8v5vp88hq58ffj0m8cvla.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "301075644463-c1dkn14oeobbtudqilnmi46496eaqsqp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.pasarMalam"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

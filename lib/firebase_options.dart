@@ -21,10 +21,7 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
@@ -59,6 +56,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '301075644463',
     projectId: 'backend-golang-36784',
     storageBucket: 'backend-golang-36784.firebasestorage.app',
+    iosClientId: '301075644463-c1dkn14oeobbtudqilnmi46496eaqsqp.apps.googleusercontent.com',
     iosBundleId: 'com.example.pasarMalam',
   );
 
@@ -68,6 +66,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '301075644463',
     projectId: 'backend-golang-36784',
     storageBucket: 'backend-golang-36784.firebasestorage.app',
+    iosClientId: '301075644463-c1dkn14oeobbtudqilnmi46496eaqsqp.apps.googleusercontent.com',
     iosBundleId: 'com.example.pasarMalam',
   );
 
@@ -80,4 +79,13 @@ class DefaultFirebaseOptions {
     storageBucket: 'backend-golang-36784.firebasestorage.app',
     measurementId: 'G-7NCXLW4ML7',
   );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyBUSkOmU-fN7djEGXbHnNK1t-dr9oGaY3Q',
+    appId: '1:301075644463:android:f8e2eef95415dbba1546da',
+    messagingSenderId: '301075644463',
+    projectId: 'backend-golang-36784',
+    storageBucket: 'backend-golang-36784.firebasestorage.app',
+  );
+
 }
