@@ -7,7 +7,7 @@ import '../../domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(clientId: null);
 
   String? _tempEmail;
   String? _tempPassword;
@@ -45,18 +45,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<bool> loginWithGoogle() async {
-    final googleUser = await _googleSignIn.signIn();
-    if (googleUser == null) return false;
+Future<bool> loginWithGoogle() async {
+  final googleUser = await _googleSignIn.signIn();
+  if (googleUser == null) return false;
 
-    final googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-    await _auth.signInWithCredential(credential);
-    return await verifyTokenToBackend();
-  }
+  final googleAuth = await googleUser.authentication;
+  final credential = GoogleAuthProvider.credential(
+    accessToken: googleAuth.accessToken,
+    idToken: googleAuth.idToken,
+  );
+  await _auth.signInWithCredential(credential);
+  return await verifyTokenToBackend();
+}
 
   @override
   Future<bool> verifyTokenToBackend() async {
