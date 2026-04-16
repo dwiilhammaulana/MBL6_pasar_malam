@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "301075644463-3lfrhuhua7e8sohuvag99aub6vaqr7p9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.pasar_malam",
+            "certificate_hash": "13b7cb290b657ad31ce2348b59a70dd601efb5f1"
+          }
+        },
+        {
           "client_id": "301075644463-rhcai8glskr8v5vp88hq58ffj0m8cvla.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -56,6 +56,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '301075644463',
     projectId: 'backend-golang-36784',
     storageBucket: 'backend-golang-36784.firebasestorage.app',
+    androidClientId: '301075644463-3lfrhuhua7e8sohuvag99aub6vaqr7p9.apps.googleusercontent.com',
     iosClientId: '301075644463-c1dkn14oeobbtudqilnmi46496eaqsqp.apps.googleusercontent.com',
     iosBundleId: 'com.example.pasarMalam',
   );
@@ -66,6 +67,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '301075644463',
     projectId: 'backend-golang-36784',
     storageBucket: 'backend-golang-36784.firebasestorage.app',
+    androidClientId: '301075644463-3lfrhuhua7e8sohuvag99aub6vaqr7p9.apps.googleusercontent.com',
     iosClientId: '301075644463-c1dkn14oeobbtudqilnmi46496eaqsqp.apps.googleusercontent.com',
     iosBundleId: 'com.example.pasarMalam',
   );

@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary
-  static const Color primary = Color(0xFF1565C0);
-  static const Color primaryLight = Color(0xFF1976D2);
-  static const Color primaryDark = Color(0xFF0D47A1);
+  // Primary - Terinspirasi dari warna Hijau Khas Wingstop
+  static const Color primary = Color(0xFF005931);
+  static const Color primaryLight = Color(0xFF007A43);
+  static const Color primaryDark = Color(0xFF003D22);
 
-  // Secondary
-  static const Color secondary = Color(0xFF42A5F5);
+  // Secondary - Warna aksen hijau yang lebih cerah
+  static const Color secondary = Color(0xFF00A651);
 
-  // Background
-  static const Color background = Color(0xFFF5F5F5);
+  // Background - Sesuai dengan tampilan receipt/e-voucher
+  static const Color background = Color(0xFFF2F2F2);
   static const Color surface = Colors.white;
 
   // Text
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
+  static const Color textPrimary = Color(0xFF1A1A1A); // Hitam hampir pekat untuk detail menu
+  static const Color textSecondary = Color(0xFF666666); // Abu-abu untuk detail harga/item minor
 
   // Status
-  static const Color success = Color(0xFF4CAF50);
-  static const Color error = Color(0xFFF44336);
-  static const Color warning = Color(0xFFFF9800);
+  static const Color success = Color(0xFF008938);
+  static const Color error = Color(0xFFD32F2F);
+  static const Color warning = Color(0xFFFFA000);
 
-  // Border
-  static const Color border = Color(0xFFE0E0E0);
+  // Border - Warna garis tipis pada rincian pesanan
+  static const Color border = Color(0xFFDEDEDE);
 }
