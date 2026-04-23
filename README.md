@@ -1,52 +1,70 @@
 # Pasar Malam App
 
-**Nama:** dwi ilham maulana  
-**Kelas:** TISE23M  
-**Ujian:** UTS mobile aplikasi lanjutan
+| Info | Detail |
+|------|--------|
+| **Nama** | Dwi Ilham Maulana |
+| **Kelas** | TISE23M |
+| **Mata Kuliah** | Mobile Aplikasi Lanjutan |
+| **Ujian** | Ujian Tengah Semester (UTS) |
 
 ---
 
-## Struktur Kode `lib` dan Fungsinya
+## Struktur Folder `lib`
 
-Aplikasi ini menggunakan struktur folder yang memisahkan antara bagian core (inti) dan fitur. Berikut adalah penjelasan masing-masing bagian dalam folder `lib`:
+Aplikasi ini mengadopsi arsitektur modular yang memisahkan antara lapisan **core** (inti) dan **features** (fitur bisnis), sehingga kode lebih terorganisir dan mudah dikembangkan.
 
-- **`lib/main.dart`**  
-  **Fungsi:** Merupakan titik masuk utama (entry point) dari aplikasi Flutter. File ini bertugas untuk menginisialisasi dan menjalankan aplikasi.
+```
+lib/
+├── main.dart               # Entry point aplikasi Flutter
+├── firebase_options.dart   # Konfigurasi Firebase (auto-generated oleh FlutterFire)
+├── core/
+│   ├── constants/          # Konstanta global (teks, nilai tetap, dll.)
+│   ├── routes/             # Konfigurasi navigasi dan routing halaman
+│   ├── services/           # Layanan umum (API service, konfigurasi, dll.)
+│   └── theme/              # Tema aplikasi (warna, typography, gaya global)
+└── features/
+    ├── auth/               # Fitur autentikasi (Login & Register)
+    └── dashboard/          # Fitur halaman utama (Dashboard)
+```
 
-- **`lib/firebase_options.dart`**  
-  **Fungsi:** File konfigurasi yang dihasilkan otomatis oleh Firebase (FlutterFire) yang memuat kunci dan pengaturan untuk menghubungkan aplikasi dengan layanan Firebase.
+### Penjelasan Singkat
 
-- **`lib/core/`**  
-  **Fungsi:** Folder ini menyimpan semua pengaturan dasar dan *shared component* yang digunakan secara global di seluruh aplikasi. Terdapat beberapa sub-folder yaitu:
-  - `constants/`: Menyimpan variabel/konstanta yang bernilai tetap, seperti teks konstan, dll.
-  - `routes/`: Menyimpan konfigurasi dan alur navigasi halaman aplikasi.
-  - `services/`: Menyimpan layanan umum seperti API service lokal atau konfigurasi lainnya.
-  - `theme/`: Menyimpan konfigurasi tema seperti warna, *typography* (font), dan gaya umum aplikasi.
-
-- **`lib/features/`**  
-  **Fungsi:** Folder ini berisi semua fitur bisnis dari aplikasi, terbagi per-modul agar kode lebih rapi dan terukur. Terdapat sub-folder fitur yaitu:
-  - `auth/`: Berisi UI, *state management*, dan logika fitur yang berkaitan dengan autentikasi (seperti Login/Register).
-  - `dashboard/`: Berisi UI, *state management*, dan logika fitur halaman utama atau dashboard aplikasi.
+| File / Folder | Fungsi |
+|---|---|
+| `main.dart` | Titik masuk utama yang menginisialisasi dan menjalankan aplikasi |
+| `firebase_options.dart` | Menyimpan konfigurasi koneksi ke layanan Firebase |
+| `core/constants/` | Variabel konstanta yang digunakan secara global |
+| `core/routes/` | Definisi alur navigasi antar halaman |
+| `core/services/` | Kumpulan service umum yang dapat digunakan lintas fitur |
+| `core/theme/` | Konfigurasi tampilan global (warna, font, style) |
+| `features/auth/` | UI, state management, dan logika autentikasi pengguna |
+| `features/dashboard/` | UI, state management, dan logika halaman utama |
 
 ---
 
 ## Cara Menjalankan Aplikasi
 
-Karena arsitektur aplikasi ini terbagi menjadi *frontend* (Flutter) dan *backend* terpisah (Golang), Anda perlu menjalankan keduanya untuk fungsionalitas penuh.
+Aplikasi ini terdiri dari dua bagian terpisah: **Frontend** (Flutter) dan **Backend** (Golang). Keduanya harus dijalankan bersamaan agar aplikasi berfungsi penuh.
 
-### 1. Menjalankan Backend (Golang)
-Buka terminal pada folder proyek backend (ingat: direktori ini terpisah dari proyek aplikasi ini), lalu jalankan perintah berikut:
+### 1. Backend — Golang
+
+> Repository backend: [github.com/dwiilhammaulana/MBL5_BackendGolang](https://github.com/dwiilhammaulana/MBL5_BackendGolang)
+
+Buka terminal pada direktori proyek backend, lalu jalankan:
+
 ```bash
 go run main.go
 ```
 
-### 2. Menjalankan Frontend Mobile (Flutter)
-Pastikan Anda sudah membuka terminal pada root folder proyek (tempat `pubspec.yaml` berada), kemudian instal dependensi dengan:
+### 2. Frontend — Flutter
+
+Buka terminal pada root direktori proyek Flutter (lokasi file `pubspec.yaml`), kemudian jalankan perintah berikut secara berurutan:
+
 ```bash
+# 1. Install semua dependensi
 flutter pub get
-```
-Setelah itu (pastikan emulator / device sudah tersambung), jalankan aplikasinya dengan perintah:
-```bash
+
+# 2. Pastikan emulator/device sudah terhubung, lalu jalankan aplikasi
 flutter run
 ```
 
@@ -54,5 +72,16 @@ flutter run
 
 ## Demo Aplikasi
 
-Anda dapat menonton video review / demo aplikasi melalui tautan YouTube berikut:
-**Link YouTube:** [Masukkan Tautan YouTube Di Sini]
+Tonton video demo dan review aplikasi melalui tautan berikut:
+
+[Klik di sini untuk menonton demo](https://youtu.be/KrQQaB2F7Io?si=sQkrshP_NeuELEHc)
+
+---
+
+## Tech Stack
+
+| Layer | Teknologi |
+|-------|-----------|
+| Frontend | Flutter |
+| Backend | Golang |
+| Database / Auth | Firebase |
