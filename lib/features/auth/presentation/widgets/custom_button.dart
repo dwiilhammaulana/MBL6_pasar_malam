@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 
 enum ButtonVariant { primary, outlined, text }
 
@@ -21,13 +20,14 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final child = isLoading
-        ? const SizedBox(
+        ? SizedBox(
             width: 20,
             height: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: Colors.white,
+              color: colorScheme.onPrimary,
             ),
           )
         : Row(
@@ -51,8 +51,8 @@ class CustomButton extends StatelessWidget {
         ButtonVariant.primary => ElevatedButton(
           onPressed: isLoading ? null : onPressed,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -63,7 +63,8 @@ class CustomButton extends StatelessWidget {
         ButtonVariant.outlined => OutlinedButton(
           onPressed: isLoading ? null : onPressed,
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: AppColors.primary, width: 1.5),
+            foregroundColor: colorScheme.primary,
+            side: BorderSide(color: colorScheme.primary, width: 1.5),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -72,6 +73,7 @@ class CustomButton extends StatelessWidget {
         ),
         ButtonVariant.text => TextButton(
           onPressed: isLoading ? null : onPressed,
+          style: TextButton.styleFrom(foregroundColor: colorScheme.primary),
           child: child,
         ),
       },

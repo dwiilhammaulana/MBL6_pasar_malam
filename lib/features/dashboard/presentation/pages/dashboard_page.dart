@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/routes/app_router.dart';
-import '../../data/models/product_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../data/models/product_model.dart';
 import '../providers/product_provider.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -14,8 +16,6 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final Color greenTheme = const Color(0xFF004D40);
-
   @override
   void initState() {
     super.initState();
@@ -32,13 +32,27 @@ class _DashboardPageState extends State<DashboardPage> {
     Navigator.pushReplacementNamed(context, AppRouter.login);
   }
 
+  Future<void> _showAccountDialog(AuthProvider auth) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => _AccountDialog(
+        auth: auth,
+        onLogout: () async {
+          Navigator.pop(dialogContext);
+          await _logout(auth);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final product = context.watch<ProductProvider>();
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
           _buildFixedHeader(auth),
@@ -67,9 +81,9 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildFixedHeader(AuthProvider auth) {
     return Container(
       padding: const EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 10),
-      decoration: BoxDecoration(
-        color: greenTheme,
-        borderRadius: const BorderRadius.only(
+      decoration: const BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(25),
           bottomRight: Radius.circular(25),
         ),
@@ -98,9 +112,12 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           IconButton(
-            tooltip: AppStrings.logout,
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () => _logout(auth),
+            tooltip: 'Akun',
+            icon: const Icon(
+              Icons.account_circle_outlined,
+              color: Colors.white,
+            ),
+            onPressed: () => _showAccountDialog(auth),
           ),
         ],
       ),
@@ -108,13 +125,15 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildModernBanner() {
+    final primary = Theme.of(context).colorScheme.primary;
+
     return Container(
       margin: const EdgeInsets.all(20),
       height: 180,
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [greenTheme, greenTheme.withValues(alpha: 0.7)],
+          colors: [AppColors.primary, primary.withValues(alpha: 0.74)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -177,6 +196,8 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildSectionTitle(String title) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
@@ -184,12 +205,16 @@ class _DashboardPageState extends State<DashboardPage> {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: colorScheme.onSurface,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           Text(
             'See All',
             style: TextStyle(
-              color: greenTheme,
+              color: colorScheme.primary,
               fontWeight: FontWeight.bold,
               fontSize: 14,
             ),
@@ -200,6 +225,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildCategoryChips() {
+    final colorScheme = Theme.of(context).colorScheme;
     final categories = [
       {'icon': Icons.fire_extinguisher, 'name': 'APAR'},
       {'icon': Icons.engineering, 'name': 'Vest'},
@@ -219,12 +245,17 @@ class _DashboardPageState extends State<DashboardPage> {
             margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
             padding: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
-              color: isFirst ? greenTheme : const Color(0xFFF3F4F6),
+              color: isFirst ? colorScheme.primary : colorScheme.surface,
               borderRadius: BorderRadius.circular(25),
+              border: Border.all(
+                color: isFirst
+                    ? Colors.transparent
+                    : Theme.of(context).dividerColor,
+              ),
               boxShadow: isFirst
                   ? [
                       BoxShadow(
-                        color: greenTheme.withValues(alpha: 0.3),
+                        color: colorScheme.primary.withValues(alpha: 0.24),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -236,13 +267,17 @@ class _DashboardPageState extends State<DashboardPage> {
                 Icon(
                   categories[i]['icon'] as IconData,
                   size: 18,
-                  color: isFirst ? Colors.white : Colors.black87,
+                  color: isFirst
+                      ? colorScheme.onPrimary
+                      : colorScheme.onSurface,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   categories[i]['name'] as String,
                   style: TextStyle(
-                    color: isFirst ? Colors.white : Colors.black87,
+                    color: isFirst
+                        ? colorScheme.onPrimary
+                        : colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -289,17 +324,23 @@ class _DashboardPageState extends State<DashboardPage> {
     required String actionLabel,
     required VoidCallback onAction,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 56, color: greenTheme),
+          Icon(icon, size: 56, color: colorScheme.primary),
           const SizedBox(height: 12),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: colorScheme.onSurface,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
@@ -331,11 +372,14 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildProductCard(ProductModel product) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade100),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,26 +393,29 @@ class _DashboardPageState extends State<DashboardPage> {
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(16),
                   ),
-                  child: Padding(
+                  child: Container(
+                    color: colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.36,
+                    ),
                     padding: const EdgeInsets.all(12),
                     child: Image.network(
                       product.imageUrl,
                       fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
+                      errorBuilder: (context, error, stackTrace) => Icon(
                         Icons.image_not_supported_outlined,
                         size: 40,
-                        color: Colors.grey,
+                        color: theme.hintColor,
                       ),
                     ),
                   ),
                 ),
               ),
-              const Positioned(
+              Positioned(
                 top: 10,
                 right: 10,
                 child: Icon(
                   Icons.favorite_border,
-                  color: Colors.grey,
+                  color: theme.unselectedWidgetColor,
                   size: 24,
                 ),
               ),
@@ -376,11 +423,11 @@ class _DashboardPageState extends State<DashboardPage> {
                 bottom: -15,
                 right: 12,
                 child: CircleAvatar(
-                  backgroundColor: greenTheme,
+                  backgroundColor: colorScheme.primary,
                   radius: 18,
-                  child: const Icon(
+                  child: Icon(
                     Icons.shopping_cart_outlined,
-                    color: Colors.white,
+                    color: colorScheme.onPrimary,
                     size: 18,
                   ),
                 ),
@@ -399,7 +446,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.grey.shade600,
+                    color: colorScheme.onSurface.withValues(alpha: 0.74),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -409,17 +456,24 @@ class _DashboardPageState extends State<DashboardPage> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: greenTheme,
+                    color: colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 5),
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.star_rounded, color: Colors.amber, size: 16),
-                    SizedBox(width: 4),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.amber,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
                     Text(
                       '5.0 (2)',
-                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: colorScheme.onSurface.withValues(alpha: 0.58),
+                      ),
                     ),
                   ],
                 ),
@@ -428,6 +482,90 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AccountDialog extends StatelessWidget {
+  final AuthProvider auth;
+  final VoidCallback onLogout;
+
+  const _AccountDialog({required this.auth, required this.onLogout});
+
+  @override
+  Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    final isDark = themeProvider.isDark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final user = auth.firebaseUser;
+
+    return AlertDialog(
+      title: Row(
+        children: [
+          Icon(Icons.account_circle_outlined, color: colorScheme.primary),
+          const SizedBox(width: 10),
+          const Text('Akun'),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            user?.displayName ?? 'User',
+            style: TextStyle(
+              color: colorScheme.onSurface,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            user?.email ?? 'Email belum tersedia',
+            style: TextStyle(
+              color: colorScheme.onSurface.withValues(alpha: 0.64),
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Divider(color: theme.dividerColor),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    isDark ? Icons.dark_mode : Icons.light_mode,
+                    size: 20,
+                    color: isDark ? Colors.amber : theme.unselectedWidgetColor,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    isDark ? 'Mode Gelap' : 'Mode Terang',
+                    style: TextStyle(color: colorScheme.onSurface),
+                  ),
+                ],
+              ),
+              Switch(
+                value: isDark,
+                onChanged: (_) => context.read<ThemeProvider>().toggle(),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Tutup'),
+        ),
+        FilledButton.icon(
+          onPressed: onLogout,
+          icon: const Icon(Icons.logout),
+          label: const Text(AppStrings.logout),
+        ),
+      ],
     );
   }
 }

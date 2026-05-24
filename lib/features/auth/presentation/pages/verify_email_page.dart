@@ -67,6 +67,9 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().firebaseUser;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -88,13 +91,14 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: theme.dividerColor),
                 ),
                 child: Text(
                   user?.email ?? '-',
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -110,9 +114,11 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
+                  Text(
                     'Menunggu konfirmasi...',
-                    style: TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(
+                      color: colorScheme.onSurface.withValues(alpha: 0.64),
+                    ),
                   ),
                 ],
               ),
