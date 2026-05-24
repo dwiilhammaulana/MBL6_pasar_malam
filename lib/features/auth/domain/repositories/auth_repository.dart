@@ -18,5 +18,7 @@ abstract class AuthRepository {
 
   Future<void> resendVerificationEmail();
 
+  Future<void> resetPassword(String email);
+
   Future<void> logout();
 }

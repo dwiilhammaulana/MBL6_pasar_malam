@@ -92,8 +92,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     prefixIcon: const Icon(Icons.email_outlined),
                     validator: (v) {
                       if (v?.isEmpty ?? true) return 'Email wajib diisi';
-                      if (!EmailValidator.validate(v!))
+                      if (!EmailValidator.validate(v!)) {
                         return 'Format email salah';
+                      }
                       return null;
                     },
                   ),
@@ -106,9 +107,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                          _showPass ? Icons.visibility_off : Icons.visibility),
-                      onPressed: () =>
-                          setState(() => _showPass = !_showPass),
+                        _showPass ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () => setState(() => _showPass = !_showPass),
                     ),
                     validator: (v) => (v?.length ?? 0) < 8
                         ? 'Password minimal 8 karakter'
@@ -137,7 +138,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       const Text('Sudah punya akun? '),
                       GestureDetector(
                         onTap: () => Navigator.pushReplacementNamed(
-                            context, AppRouter.login),
+                          context,
+                          AppRouter.login,
+                        ),
                         child: const Text(
                           'Masuk',
                           style: TextStyle(

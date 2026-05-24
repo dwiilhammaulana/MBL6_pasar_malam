@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/services/dio_client.dart';
 import '../../../../core/services/secure_storage.dart';
+import '../models/auth_response_model.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -42,7 +43,7 @@ class AuthRepositoryImpl implements AuthRepository {
     if (!(credential.user?.emailVerified ?? false)) {
       return false;
     }
-    return await verifyTokenToBackend();
+    return verifyTokenToBackend();
   }
 
   @override
@@ -56,28 +57,25 @@ class AuthRepositoryImpl implements AuthRepository {
       idToken: googleAuth.idToken,
     );
     await _auth.signInWithCredential(credential);
-    return await verifyTokenToBackend();
+    return verifyTokenToBackend();
   }
 
   @override
   Future<bool> verifyTokenToBackend() async {
     try {
       final firebaseToken = await _auth.currentUser?.getIdToken();
-      debugPrint('=== DEBUG ===');
-      debugPrint('Firebase Token: $firebaseToken');
-      debugPrint('Base URL: ${ApiConstants.baseUrl}');
-      debugPrint('Endpoint: ${ApiConstants.verifyToken}');
+      if (firebaseToken == null) return false;
 
       final response = await DioClient.instance.post(
         ApiConstants.verifyToken,
         data: {'firebase_token': firebaseToken},
       );
+      final authResponse = AuthResponseModel.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+      if (authResponse.accessToken.isEmpty) return false;
 
-      debugPrint('Response: ${response.data}');
-
-      final data = response.data['data'] as Map<String, dynamic>;
-      final accessToken = data['access_token'] as String;
-      await SecureStorageService.saveToken(accessToken);
+      await SecureStorageService.saveToken(authResponse.accessToken);
       return true;
     } catch (e) {
       debugPrint('Error verifyTokenToBackend: $e');
@@ -98,7 +96,7 @@ class AuthRepositoryImpl implements AuthRepository {
         _tempEmail = null;
         _tempPassword = null;
       }
-      return await verifyTokenToBackend();
+      return verifyTokenToBackend();
     }
     return false;
   }
@@ -106,6 +104,11 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> resendVerificationEmail() async {
     await _auth.currentUser?.sendEmailVerification();
+  }
+
+  @override
+  Future<void> resetPassword(String email) async {
+    await _auth.sendPasswordResetEmail(email: email);
   }
 
   @override

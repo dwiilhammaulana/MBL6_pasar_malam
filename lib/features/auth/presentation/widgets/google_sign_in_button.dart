@@ -5,11 +5,7 @@ class GoogleSignInButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isLoading;
 
-  const GoogleSignInButton({
-    super.key,
-    this.onPressed,
-    this.isLoading = false,
-  });
+  const GoogleSignInButton({super.key, this.onPressed, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +18,8 @@ class GoogleSignInButton extends StatelessWidget {
           backgroundColor: AppColors.surface,
           side: const BorderSide(color: AppColors.border),
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         child: isLoading
             ? const SizedBox(

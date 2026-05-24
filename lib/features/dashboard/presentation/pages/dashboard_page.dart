@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/routes/app_router.dart';
+import '../../data/models/product_model.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/product_provider.dart';
 
@@ -13,15 +14,22 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  // Warna tema hijau konsisten
   final Color greenTheme = const Color(0xFF004D40);
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductProvider>().fetchProducts();
+      if (mounted) {
+        context.read<ProductProvider>().fetchProducts();
+      }
     });
+  }
+
+  Future<void> _logout(AuthProvider auth) async {
+    await auth.logout();
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, AppRouter.login);
   }
 
   @override
@@ -33,30 +41,20 @@ class _DashboardPageState extends State<DashboardPage> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // 1. FIXED HEADER
           _buildFixedHeader(auth),
-
-          // 2. SCROLLABLE CONTENT
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () => product.fetchProducts(),
+              onRefresh: product.fetchProducts,
               child: CustomScrollView(
-                physics: const BouncingScrollPhysics(),
+                physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  // Banner Baru (Style New Collections)
                   SliverToBoxAdapter(child: _buildModernBanner()),
-
-                  // Judul Kategori & See All
                   SliverToBoxAdapter(child: _buildSectionTitle('Categories')),
-
-                  // Category Chips (Horizontal Scroll)
                   SliverToBoxAdapter(child: _buildCategoryChips()),
-
-                  // Judul Produk
-                  SliverToBoxAdapter(child: _buildSectionTitle('Safety Products')),
-
-                  // Grid Produk
-                  _buildProductGrid(product),
+                  SliverToBoxAdapter(
+                    child: _buildSectionTitle('Safety Products'),
+                  ),
+                  _buildProductContent(product),
                 ],
               ),
             ),
@@ -79,19 +77,30 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Hai, ${auth.firebaseUser?.displayName ?? 'User'}!',
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const Text('Cari peralatan safety hari ini?', style: TextStyle(color: Colors.white70, fontSize: 12)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hai, ${auth.firebaseUser?.displayName ?? 'User'}!',
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Text(
+                  'Cari peralatan safety hari ini?',
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ],
+            ),
           ),
           IconButton(
+            tooltip: AppStrings.logout,
             icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () => Navigator.pushReplacementNamed(context, AppRouter.login),
+            onPressed: () => _logout(auth),
           ),
         ],
       ),
@@ -105,7 +114,7 @@ class _DashboardPageState extends State<DashboardPage> {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [greenTheme, greenTheme.withOpacity(0.7)],
+          colors: [greenTheme, greenTheme.withValues(alpha: 0.7)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -119,32 +128,49 @@ class _DashboardPageState extends State<DashboardPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('New Collections!', 
-                  style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                const Text(
+                  'New Collections!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 5),
-                const Text('Get Discount up to 50%\nfor fire equipment', 
-                  style: TextStyle(color: Colors.white70, fontSize: 13)),
+                const Text(
+                  'Get Discount up to 50%\nfor fire equipment',
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
+                ),
                 const SizedBox(height: 15),
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black87,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
-                  child: const Text('SHOP NOW!', style: TextStyle(fontSize: 12)),
-                )
+                  child: const Text(
+                    'SHOP NOW!',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
               ],
             ),
           ),
-          // Gambar dekoratif di kanan banner (contoh APAR atau Helm)
-          Positioned(
-            right: -10, bottom: 10,
+          const Positioned(
+            right: -10,
+            bottom: 10,
             child: Opacity(
               opacity: 0.3,
-              child: Icon(Icons.fire_extinguisher, size: 150, color: Colors.white),
+              child: Icon(
+                Icons.fire_extinguisher,
+                size: 150,
+                color: Colors.white,
+              ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -156,8 +182,18 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          Text('See All', style: TextStyle(color: greenTheme, fontWeight: FontWeight.bold, fontSize: 14)),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            'See All',
+            style: TextStyle(
+              color: greenTheme,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
         ],
       ),
     );
@@ -178,22 +214,38 @@ class _DashboardPageState extends State<DashboardPage> {
         padding: const EdgeInsets.symmetric(horizontal: 15),
         itemCount: categories.length,
         itemBuilder: (context, i) {
-          bool isFirst = i == 0;
+          final isFirst = i == 0;
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
             padding: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
               color: isFirst ? greenTheme : const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(25),
-              boxShadow: isFirst ? [BoxShadow(color: greenTheme.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))] : [],
+              boxShadow: isFirst
+                  ? [
+                      BoxShadow(
+                        color: greenTheme.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : [],
             ),
             child: Row(
               children: [
-                Icon(categories[i]['icon'] as IconData, 
-                     size: 18, color: isFirst ? Colors.white : Colors.black87),
+                Icon(
+                  categories[i]['icon'] as IconData,
+                  size: 18,
+                  color: isFirst ? Colors.white : Colors.black87,
+                ),
                 const SizedBox(width: 8),
-                Text(categories[i]['name'] as String, 
-                     style: TextStyle(color: isFirst ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+                Text(
+                  categories[i]['name'] as String,
+                  style: TextStyle(
+                    color: isFirst ? Colors.white : Colors.black87,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           );
@@ -202,11 +254,65 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildProductGrid(ProductProvider product) {
-    if (product.status == ProductStatus.loading) {
-      return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
-    }
+  Widget _buildProductContent(ProductProvider product) {
+    return switch (product.status) {
+      ProductStatus.loading ||
+      ProductStatus.initial => const SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      ProductStatus.error => SliverFillRemaining(
+        hasScrollBody: false,
+        child: _buildMessageState(
+          icon: Icons.error_outline,
+          title: product.error ?? AppStrings.errorGeneral,
+          actionLabel: AppStrings.retry,
+          onAction: product.fetchProducts,
+        ),
+      ),
+      ProductStatus.loaded when product.products.isEmpty => SliverFillRemaining(
+        hasScrollBody: false,
+        child: _buildMessageState(
+          icon: Icons.inventory_2_outlined,
+          title: AppStrings.emptyProducts,
+          actionLabel: AppStrings.retry,
+          onAction: product.fetchProducts,
+        ),
+      ),
+      ProductStatus.loaded => _buildProductGrid(product.products),
+    };
+  }
 
+  Widget _buildMessageState({
+    required IconData icon,
+    required String title,
+    required String actionLabel,
+    required VoidCallback onAction,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 56, color: greenTheme),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: onAction,
+            icon: const Icon(Icons.refresh),
+            label: Text(actionLabel),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProductGrid(List<ProductModel> products) {
     return SliverPadding(
       padding: const EdgeInsets.all(20),
       sliver: SliverGrid(
@@ -214,20 +320,17 @@ class _DashboardPageState extends State<DashboardPage> {
           crossAxisCount: 2,
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
-          childAspectRatio: 0.62, // Ratio aman untuk menghindari garis kuning
+          childAspectRatio: 0.62,
         ),
         delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final p = product.products[index];
-            return _buildProductCard(p);
-          },
-          childCount: product.products.length,
+          (context, index) => _buildProductCard(products[index]),
+          childCount: products.length,
         ),
       ),
     );
   }
 
-  Widget _buildProductCard(dynamic p) {
+  Widget _buildProductCard(ProductModel product) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -243,20 +346,43 @@ class _DashboardPageState extends State<DashboardPage> {
               AspectRatio(
                 aspectRatio: 1,
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(12),
-                    child: Image.network(p.imageUrl, fit: BoxFit.contain),
+                    child: Image.network(
+                      product.imageUrl,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.image_not_supported_outlined,
+                        size: 40,
+                        color: Colors.grey,
+                      ),
+                    ),
                   ),
                 ),
               ),
-              const Positioned(top: 10, right: 10, child: Icon(Icons.favorite_border, color: Colors.grey, size: 24)),
+              const Positioned(
+                top: 10,
+                right: 10,
+                child: Icon(
+                  Icons.favorite_border,
+                  color: Colors.grey,
+                  size: 24,
+                ),
+              ),
               Positioned(
-                bottom: -15, right: 12,
+                bottom: -15,
+                right: 12,
                 child: CircleAvatar(
                   backgroundColor: greenTheme,
                   radius: 18,
-                  child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 18),
+                  child: const Icon(
+                    Icons.shopping_cart_outlined,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
               ),
             ],
@@ -267,17 +393,34 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(p.name, maxLines: 2, overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
+                Text(
+                  product.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 const SizedBox(height: 5),
-                Text('Rp${p.price.toStringAsFixed(0)}',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: greenTheme)),
+                Text(
+                  'Rp${product.price.toStringAsFixed(0)}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: greenTheme,
+                  ),
+                ),
                 const SizedBox(height: 5),
-                Row(
-                  children: const [
+                const Row(
+                  children: [
                     Icon(Icons.star_rounded, color: Colors.amber, size: 16),
                     SizedBox(width: 4),
-                    Text('5.0 (2)', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                    Text(
+                      '5.0 (2)',
+                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
                   ],
                 ),
               ],

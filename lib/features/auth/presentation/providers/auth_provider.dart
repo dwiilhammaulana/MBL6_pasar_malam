@@ -15,18 +15,15 @@ enum AuthStatus {
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _repository = AuthRepositoryImpl();
 
-  // ─── State ───────────────────────────────────────────────
   AuthStatus _status = AuthStatus.initial;
   User? _firebaseUser;
   String? _errorMessage;
 
-  // ─── Getters ─────────────────────────────────────────────
   AuthStatus get status => _status;
   User? get firebaseUser => _firebaseUser;
   String? get errorMessage => _errorMessage;
   bool get isLoading => _status == AuthStatus.loading;
 
-  // ─── Register ────────────────────────────────────────────
   Future<bool> register({
     required String name,
     required String email,
@@ -34,12 +31,7 @@ class AuthProvider extends ChangeNotifier {
   }) async {
     _setLoading();
     try {
-      _firebaseUser = FirebaseAuth.instance.currentUser;
-      await _repository.register(
-        name: name,
-        email: email,
-        password: password,
-      );
+      await _repository.register(name: name, email: email, password: password);
       _firebaseUser = FirebaseAuth.instance.currentUser;
       _status = AuthStatus.emailNotVerified;
       notifyListeners();
@@ -53,7 +45,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // ─── Login Email ─────────────────────────────────────────
   Future<bool> loginWithEmail({
     required String email,
     required String password,
@@ -82,26 +73,24 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // ─── Login Google ─────────────────────────────────────────
   Future<bool> loginWithGoogle() async {
     _setLoading();
     try {
       final success = await _repository.loginWithGoogle();
       _firebaseUser = FirebaseAuth.instance.currentUser;
       if (!success) {
-        _setError('Login Google dibatalkan');
+        _setError('Login Google dibatalkan.');
         return false;
       }
       _status = AuthStatus.authenticated;
       notifyListeners();
       return true;
     } catch (e) {
-      _setError('Gagal login dengan Google: $e');
+      _setError('Gagal login dengan Google.');
       return false;
     }
   }
 
-  // ─── Check Email Verified ─────────────────────────────────
   Future<bool> checkEmailVerified() async {
     try {
       final success = await _repository.checkEmailVerified();
@@ -117,12 +106,26 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // ─── Resend Verification Email ────────────────────────────
   Future<void> resendVerificationEmail() async {
     await _repository.resendVerificationEmail();
   }
 
-  // ─── Logout ───────────────────────────────────────────────
+  Future<bool> resetPassword(String email) async {
+    _setLoading();
+    try {
+      await _repository.resetPassword(email);
+      _status = AuthStatus.unauthenticated;
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _setError(_mapFirebaseError(e.code));
+      return false;
+    } catch (e) {
+      _setError('Gagal mengirim email reset password.');
+      return false;
+    }
+  }
+
   Future<void> logout() async {
     await _repository.logout();
     _firebaseUser = null;
@@ -130,7 +133,6 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ─── Private Helpers ──────────────────────────────────────
   void _setLoading() {
     _status = AuthStatus.loading;
     _errorMessage = null;
@@ -144,12 +146,13 @@ class AuthProvider extends ChangeNotifier {
   }
 
   String _mapFirebaseError(String code) => switch (code) {
-        'email-already-in-use' => 'Email sudah terdaftar. Gunakan email lain.',
-        'user-not-found' => 'Akun tidak ditemukan. Silakan daftar.',
-        'wrong-password' => 'Password salah. Coba lagi.',
-        'invalid-email' => 'Format email tidak valid.',
-        'weak-password' => 'Password terlalu lemah. Minimal 6 karakter.',
-        'network-request-failed' => 'Tidak ada koneksi internet.',
-        _ => 'Terjadi kesalahan. Coba lagi.',
-      };
+    'email-already-in-use' => 'Email sudah terdaftar. Gunakan email lain.',
+    'user-not-found' => 'Akun tidak ditemukan. Silakan daftar.',
+    'wrong-password' => 'Password salah. Coba lagi.',
+    'invalid-credential' => 'Email atau password salah.',
+    'invalid-email' => 'Format email tidak valid.',
+    'weak-password' => 'Password terlalu lemah. Minimal 6 karakter.',
+    'network-request-failed' => 'Tidak ada koneksi internet.',
+    _ => 'Terjadi kesalahan. Coba lagi.',
+  };
 }

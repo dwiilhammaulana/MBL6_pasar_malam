@@ -20,6 +20,7 @@ class ProductProvider extends ChangeNotifier {
 
   Future<void> fetchProducts() async {
     _status = ProductStatus.loading;
+    _error = null;
     notifyListeners();
 
     try {

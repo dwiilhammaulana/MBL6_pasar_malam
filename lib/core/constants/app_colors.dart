@@ -14,8 +14,12 @@ class AppColors {
   static const Color surface = Colors.white;
 
   // Text
-  static const Color textPrimary = Color(0xFF1A1A1A); // Hitam hampir pekat untuk detail menu
-  static const Color textSecondary = Color(0xFF666666); // Abu-abu untuk detail harga/item minor
+  static const Color textPrimary = Color(
+    0xFF1A1A1A,
+  ); // Hitam hampir pekat untuk detail menu
+  static const Color textSecondary = Color(
+    0xFF666666,
+  ); // Abu-abu untuk detail harga/item minor
 
   // Status
   static const Color success = Color(0xFF008938);

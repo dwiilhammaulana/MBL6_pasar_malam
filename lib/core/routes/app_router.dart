@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -15,45 +17,54 @@ class AppRouter {
   static const String dashboard = '/dashboard';
 
   static Map<String, WidgetBuilder> get routes => {
-        splash: (_) => const SplashPage(),
-        login: (_) => const LoginPage(),
-        register: (_) => const RegisterPage(),
-        verifyEmail: (_) => const VerifyEmailPage(),
-        dashboard: (_) => const AuthGuard(child: DashboardPage()),
-      };
+    splash: (_) => const SplashPage(),
+    login: (_) => const LoginPage(),
+    register: (_) => const RegisterPage(),
+    verifyEmail: (_) => const VerifyEmailPage(),
+    dashboard: (_) => const AuthGuard(child: DashboardPage()),
+  };
 }
 
-// Splash Page
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
+
   @override
   State<SplashPage> createState() => _SplashPageState();
 }
 
 class _SplashPageState extends State<SplashPage> {
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
-    _checkAuth();
+    _timer = Timer(const Duration(seconds: 2), _checkAuth);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
+
     final token = await SecureStorageService.getToken();
+    if (!mounted) return;
+
     final route = token != null ? AppRouter.dashboard : AppRouter.login;
     Navigator.pushReplacementNamed(context, route);
   }
 
   @override
-  Widget build(BuildContext context) => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: CircularProgressIndicator()));
 }
 
-// Auth Guard
 class AuthGuard extends StatelessWidget {
   final Widget child;
+
   const AuthGuard({super.key, required this.child});
 
   @override

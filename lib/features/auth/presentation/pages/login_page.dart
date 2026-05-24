@@ -1,8 +1,8 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/routes/app_router.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/auth_header.dart';
@@ -58,41 +58,64 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(auth.errorMessage ?? 'Login gagal'),
+          content: Text(auth.errorMessage ?? AppStrings.loginFailed),
           backgroundColor: AppColors.error,
         ),
       );
     }
   }
 
-  void _showForgotPasswordDialog(BuildContext context) {
-    final ctrl = TextEditingController();
-    showDialog(
+  Future<void> _showForgotPasswordDialog() async {
+    final ctrl = TextEditingController(text: _emailCtrl.text.trim());
+    final auth = context.read<AuthProvider>();
+
+    await showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Reset Password'),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text(AppStrings.resetPassword),
         content: CustomTextField(
-          label: 'Email',
+          label: AppStrings.email,
           hint: 'Email terdaftar',
           controller: ctrl,
           keyboardType: TextInputType.emailAddress,
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Batal'),
           ),
           ElevatedButton(
             onPressed: () async {
-              await FirebaseAuth.instance
-                  .sendPasswordResetEmail(email: ctrl.text.trim());
-              if (context.mounted) Navigator.pop(context);
+              final email = ctrl.text.trim();
+              if (!EmailValidator.validate(email)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text(AppStrings.emailInvalid)),
+                );
+                return;
+              }
+
+              final navigator = Navigator.of(dialogContext);
+              final messenger = ScaffoldMessenger.of(context);
+              final ok = await auth.resetPassword(email);
+              if (!mounted) return;
+              navigator.pop();
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    ok
+                        ? AppStrings.resetPasswordSent
+                        : auth.errorMessage ?? AppStrings.errorGeneral,
+                  ),
+                  backgroundColor: ok ? AppColors.success : AppColors.error,
+                ),
+              );
             },
             child: const Text('Kirim'),
           ),
         ],
       ),
     );
+    ctrl.dispose();
   }
 
   @override
@@ -117,48 +140,47 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 32),
                   CustomTextField(
-                    label: 'Email',
-                    hint: 'contoh@email.com',
+                    label: AppStrings.email,
+                    hint: AppStrings.emailHint,
                     controller: _emailCtrl,
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: const Icon(Icons.email_outlined),
                     validator: (v) {
-                      if (v?.isEmpty ?? true) return 'Email wajib diisi';
-                      if (!EmailValidator.validate(v!))
-                        return 'Format email salah';
+                      if (v?.isEmpty ?? true) return AppStrings.emailRequired;
+                      if (!EmailValidator.validate(v!)) {
+                        return AppStrings.emailInvalid;
+                      }
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
-                    label: 'Password',
+                    label: AppStrings.password,
                     hint: 'Masukkan password',
                     controller: _passCtrl,
                     obscureText: !_showPass,
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
-                      icon: Icon(_showPass
-                          ? Icons.visibility_off
-                          : Icons.visibility),
-                      onPressed: () =>
-                          setState(() => _showPass = !_showPass),
+                      icon: Icon(
+                        _showPass ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () => setState(() => _showPass = !_showPass),
                     ),
                     validator: (v) => (v?.isEmpty ?? true)
-                        ? 'Password wajib diisi'
+                        ? AppStrings.passwordRequired
                         : null,
                   ),
                   const SizedBox(height: 8),
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () =>
-                          _showForgotPasswordDialog(context),
-                      child: const Text('Lupa Password?'),
+                      onPressed: _showForgotPasswordDialog,
+                      child: const Text(AppStrings.forgotPassword),
                     ),
                   ),
                   const SizedBox(height: 8),
                   CustomButton(
-                    label: 'Masuk',
+                    label: AppStrings.login,
                     onPressed: _loginEmail,
                     isLoading: isLoading,
                   ),
@@ -176,9 +198,11 @@ class _LoginPageState extends State<LoginPage> {
                       const Text('Belum punya akun? '),
                       GestureDetector(
                         onTap: () => Navigator.pushReplacementNamed(
-                            context, AppRouter.register),
+                          context,
+                          AppRouter.register,
+                        ),
                         child: const Text(
-                          'Daftar',
+                          AppStrings.register,
                           style: TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,

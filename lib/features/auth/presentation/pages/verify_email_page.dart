@@ -59,8 +59,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     });
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Email verifikasi sudah dikirim ulang')),
+        const SnackBar(content: Text('Email verifikasi sudah dikirim ulang')),
       );
     }
   }
@@ -85,7 +84,9 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
               const SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 12),
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.background,
                   borderRadius: BorderRadius.circular(12),
@@ -94,7 +95,9 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                 child: Text(
                   user?.email ?? '-',
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
@@ -127,8 +130,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                 variant: ButtonVariant.text,
                 onPressed: () {
                   context.read<AuthProvider>().logout();
-                  Navigator.pushReplacementNamed(
-                      context, AppRouter.login);
+                  Navigator.pushReplacementNamed(context, AppRouter.login);
                 },
               ),
             ],
