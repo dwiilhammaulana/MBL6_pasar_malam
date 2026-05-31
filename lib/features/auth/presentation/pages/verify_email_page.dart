@@ -17,6 +17,7 @@ class VerifyEmailPage extends StatefulWidget {
 class _VerifyEmailPageState extends State<VerifyEmailPage> {
   Timer? _timer;
   bool _resendCooldown = false;
+  bool _isChecking = false;
   int _countdown = 60;
 
   @override
@@ -34,23 +35,66 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   void _startPolling() {
     _timer = Timer.periodic(const Duration(seconds: 5), (_) async {
       if (!mounted) return;
-      final auth = context.read<AuthProvider>();
-      final success = await auth.checkEmailVerified();
-      if (success && mounted) {
-        _timer?.cancel();
-        Navigator.pushReplacementNamed(context, AppRouter.dashboard);
-      }
+      await _checkVerification(showMessage: false);
     });
+  }
+
+  Future<void> _checkVerification({required bool showMessage}) async {
+    if (_isChecking) return;
+
+    setState(() => _isChecking = true);
+    final auth = context.read<AuthProvider>();
+    final success = await auth.checkEmailVerified();
+    if (!mounted) return;
+
+    setState(() => _isChecking = false);
+
+    if (success) {
+      _timer?.cancel();
+      Navigator.pushReplacementNamed(context, AppRouter.dashboard);
+      return;
+    }
+
+    if (showMessage) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            auth.errorMessage ??
+                'Email belum terverifikasi. Buka link verifikasi di email, lalu coba lagi.',
+          ),
+          backgroundColor: auth.errorMessage == null
+              ? AppColors.warning
+              : AppColors.error,
+        ),
+      );
+    }
   }
 
   Future<void> _resendEmail() async {
     if (_resendCooldown) return;
-    await context.read<AuthProvider>().resendVerificationEmail();
+    final auth = context.read<AuthProvider>();
+    final sent = await auth.resendVerificationEmail();
+    if (!mounted) return;
+
+    if (!sent) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(auth.errorMessage ?? 'Gagal mengirim email verifikasi'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _resendCooldown = true;
       _countdown = 60;
     });
     Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
       setState(() => _countdown--);
       if (_countdown <= 0) {
         t.cancel();
@@ -123,6 +167,15 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                 ],
               ),
               const SizedBox(height: 32),
+              CustomButton(
+                label: _isChecking
+                    ? 'Mengecek Verifikasi...'
+                    : 'Saya Sudah Verifikasi',
+                onPressed: _isChecking
+                    ? null
+                    : () => _checkVerification(showMessage: true),
+              ),
+              const SizedBox(height: 12),
               CustomButton(
                 label: _resendCooldown
                     ? 'Kirim Ulang ($_countdown detik)'

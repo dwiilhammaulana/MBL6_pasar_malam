@@ -13,7 +13,7 @@ enum AuthStatus {
 }
 
 class AuthProvider extends ChangeNotifier {
-  final AuthRepository _repository = AuthRepositoryImpl();
+  late final AuthRepository _repository = AuthRepositoryImpl();
 
   AuthStatus _status = AuthStatus.initial;
   User? _firebaseUser;
@@ -64,6 +64,9 @@ class AuthProvider extends ChangeNotifier {
       _status = AuthStatus.authenticated;
       notifyListeners();
       return true;
+    } on AuthFailure catch (e) {
+      _setError(e.message);
+      return false;
     } on FirebaseAuthException catch (e) {
       _setError(_mapFirebaseError(e.code));
       return false;
@@ -101,13 +104,28 @@ class AuthProvider extends ChangeNotifier {
         return true;
       }
       return false;
+    } on AuthFailure catch (e) {
+      _setError(e.message);
+      return false;
     } catch (e) {
+      _setError('Gagal mengecek verifikasi email. Coba lagi.');
       return false;
     }
   }
 
-  Future<void> resendVerificationEmail() async {
-    await _repository.resendVerificationEmail();
+  Future<bool> resendVerificationEmail() async {
+    try {
+      await _repository.resendVerificationEmail();
+      _errorMessage = null;
+      notifyListeners();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _setError(_mapFirebaseError(e.code));
+      return false;
+    } catch (e) {
+      _setError('Gagal mengirim email verifikasi. Coba lagi.');
+      return false;
+    }
   }
 
   Future<bool> resetPassword(String email) async {
@@ -153,6 +171,7 @@ class AuthProvider extends ChangeNotifier {
     'invalid-email' => 'Format email tidak valid.',
     'weak-password' => 'Password terlalu lemah. Minimal 6 karakter.',
     'network-request-failed' => 'Tidak ada koneksi internet.',
+    'too-many-requests' => 'Terlalu banyak permintaan. Tunggu sebentar.',
     _ => 'Terjadi kesalahan. Coba lagi.',
   };
 }

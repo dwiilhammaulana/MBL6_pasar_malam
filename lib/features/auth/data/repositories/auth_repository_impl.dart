@@ -40,10 +40,23 @@ class AuthRepositoryImpl implements AuthRepository {
       email: email,
       password: password,
     );
-    if (!(credential.user?.emailVerified ?? false)) {
+    await credential.user?.reload();
+    final user = _auth.currentUser;
+    if (!(user?.emailVerified ?? false)) {
+      try {
+        await user?.sendEmailVerification();
+      } on FirebaseAuthException catch (e) {
+        debugPrint('Error sendEmailVerification on login: ${e.code}');
+      }
       return false;
     }
-    return verifyTokenToBackend();
+    final verified = await verifyTokenToBackend();
+    if (!verified) {
+      throw const AuthFailure(
+        'Email sudah terverifikasi, tetapi gagal login ke server. Periksa koneksi dan IP backend.',
+      );
+    }
+    return true;
   }
 
   @override
@@ -63,7 +76,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<bool> verifyTokenToBackend() async {
     try {
-      final firebaseToken = await _auth.currentUser?.getIdToken();
+      final firebaseToken = await _auth.currentUser?.getIdToken(true);
       if (firebaseToken == null) return false;
 
       final response = await DioClient.instance.post(
@@ -96,7 +109,13 @@ class AuthRepositoryImpl implements AuthRepository {
         _tempEmail = null;
         _tempPassword = null;
       }
-      return verifyTokenToBackend();
+      final verified = await verifyTokenToBackend();
+      if (!verified) {
+        throw const AuthFailure(
+          'Email sudah terverifikasi, tetapi gagal login ke server. Periksa koneksi dan IP backend.',
+        );
+      }
+      return true;
     }
     return false;
   }

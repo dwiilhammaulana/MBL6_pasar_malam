@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'core/providers/biometric_lock_provider.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/biometric_lock_screen.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/dashboard/presentation/providers/product_provider.dart';
 import 'firebase_options.dart';
@@ -17,6 +19,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(
+          create: (_) => BiometricLockProvider()..initialize(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -38,6 +43,8 @@ class MyApp extends StatelessWidget {
       themeMode: themeProvider.themeMode,
       initialRoute: AppRouter.splash,
       routes: AppRouter.routes,
+      builder: (context, child) =>
+          BiometricLockScreen(child: child ?? const SizedBox.shrink()),
     );
   }
 }
