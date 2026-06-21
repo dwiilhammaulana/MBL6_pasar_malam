@@ -7,7 +7,9 @@ import 'core/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/biometric_lock_screen.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
+import 'features/cart/presentation/providers/cart_provider.dart';
 import 'features/dashboard/presentation/providers/product_provider.dart';
+import 'features/order/presentation/providers/order_provider.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -19,6 +21,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(
           create: (_) => BiometricLockProvider()..initialize(),
         ),

@@ -73,13 +73,11 @@ flutter run
 ## Demo Aplikasi
 
 Tonton video demo dan review aplikasi melalui tautan berikut:
-
-mohon maaf pak untuk demo aplikasi ini vidio saya terblokir 3 kali dengan keterangan membagikan data pribadi
-![alt text](<WhatsApp Image 2026-04-26 at 20.45.42.jpeg>) 
+https://www.youtube.com/watch?v=vy1y_I9a9O4
 
 
 maka dari itu saya alihkan ke Link Drive saja ya pak, berikut untuk linknya:
-https://drive.google.com/file/d/1BeAyvIMkLeCZ9g9I3Het8jkIId3XbzEW/view?usp=sharing
+https://drive.google.com/file/d/1VHbm3ocWMGKUGypx9lC6KCBXXScNWZSB/view
 
 ---
 

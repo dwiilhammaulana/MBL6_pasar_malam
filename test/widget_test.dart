@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pasar_malam/core/providers/theme_provider.dart';
 import 'package:pasar_malam/features/auth/presentation/providers/auth_provider.dart';
+import 'package:pasar_malam/features/cart/presentation/providers/cart_provider.dart';
 import 'package:pasar_malam/features/dashboard/presentation/providers/product_provider.dart';
+import 'package:pasar_malam/features/order/presentation/providers/order_provider.dart';
 import 'package:pasar_malam/main.dart';
 import 'package:provider/provider.dart';
 
@@ -14,6 +16,8 @@ void main() {
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => AuthProvider()),
           ChangeNotifierProvider(create: (_) => ProductProvider()),
+          ChangeNotifierProvider(create: (_) => CartProvider()),
+          ChangeNotifierProvider(create: (_) => OrderProvider()),
         ],
         child: const MyApp(),
       ),
