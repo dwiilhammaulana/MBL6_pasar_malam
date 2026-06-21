@@ -73,11 +73,11 @@ flutter run
 ## Demo Aplikasi
 
 Tonton video demo dan review aplikasi melalui tautan berikut:
-https://www.youtube.com/watch?v=vy1y_I9a9O4
+([Link YT](https://www.youtube.com/watch?v=vy1y_I9a9O4)
 
 
 maka dari itu saya alihkan ke Link Drive saja ya pak, berikut untuk linknya:
-https://drive.google.com/file/d/1VHbm3ocWMGKUGypx9lC6KCBXXScNWZSB/view
+[Link vidio ke Drive](https://drive.google.com/file/d/1VHbm3ocWMGKUGypx9lC6KCBXXScNWZSB/view)
 
 ---
 
