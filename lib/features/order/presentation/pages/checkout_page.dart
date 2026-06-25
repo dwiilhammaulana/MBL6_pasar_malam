@@ -21,11 +21,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   static const _paymentOptions = [
     _PaymentOption(
-      value: 'gopay',
-      label: 'GoPay',
-      subtitle: 'Bayar instant dengan GoPay',
+      value: 'global_institute_pay',
+      label: 'Dompet Kampus Global',
+      subtitle: 'Bayar via Dompet Kampus Global',
       icon: Icons.account_balance_wallet,
-      iconColor: Color(0xFF00ADB5),
+      iconColor: Color(0xFF1A237E),
     ),
     _PaymentOption(
       value: 'bank_transfer',
@@ -103,7 +103,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (!mounted) return;
     final order = orderProvider.lastOrder!;
     final needsPayment =
-        order.paymentMethod == 'virtual_account' || order.paymentMethod == 'gopay';
+        order.paymentMethod == 'virtual_account' ||
+        order.paymentMethod == 'global_institute_pay';
 
     Navigator.pushNamedAndRemoveUntil(
       context,
