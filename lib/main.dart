@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'core/providers/biometric_lock_provider.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/routes/app_router.dart';
+import 'core/services/global_institute_pay_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/biometric_lock_screen.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
@@ -15,6 +16,7 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await GlobalInstitutePayService().init();
   runApp(
     MultiProvider(
       providers: [
