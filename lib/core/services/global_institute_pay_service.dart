@@ -64,10 +64,16 @@ class GlobalInstitutePayService {
 
   void _handleUri(Uri uri, {bool isColdStart = false}) {
     debugPrint('[GlobalInstitutePayService] URI diterima: $uri');
+    debugPrint('[GlobalInstitutePayService] Cold start: $isColdStart');
 
     if (uri.scheme != 'pasarmalam' || uri.host != 'payment-callback') {
+      debugPrint('[GlobalInstitutePayService] URI diabaikan');
       return;
     }
+
+    debugPrint(
+      '[GlobalInstitutePayService] Callback params: ${uri.queryParameters}',
+    );
 
     final data = PaymentCallbackData(
       status: uri.queryParameters['status'] ?? 'unknown',
@@ -80,6 +86,7 @@ class GlobalInstitutePayService {
     }
 
     _callbackController.add(data);
+    debugPrint('[GlobalInstitutePayService] Callback status: ${data.status}');
   }
 
   static String buildDeeplinkUrl({
@@ -102,7 +109,9 @@ class GlobalInstitutePayService {
       },
     );
 
-    return uri.toString();
+    final deeplink = uri.toString();
+    debugPrint('[GlobalInstitutePayService] Deeplink dibuat: $deeplink');
+    return deeplink;
   }
 
   Future<void> dispose() async {
