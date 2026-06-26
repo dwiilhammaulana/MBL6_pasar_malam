@@ -71,6 +71,14 @@ class _OrderCard extends StatelessWidget {
     _ => status,
   };
 
+  String _paymentMethodLabel(String method) => switch (method) {
+    'gopay' => 'GoPay',
+    'global_institute_pay' => 'Dompet Kampus Global',
+    'bank_transfer' => 'Transfer Bank',
+    'virtual_account' => 'Virtual Account',
+    _ => method,
+  };
+
   Color _statusColor(String status) => switch (status) {
     'pending' => Colors.orange,
     'processing' => Colors.blue,
@@ -121,7 +129,7 @@ class _OrderCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text('Total: ${CurrencyFormatter.rupiah(order.totalAmount)}'),
           const SizedBox(height: 4),
-          Text('Metode: ${order.paymentMethod}'),
+          Text('Metode: ${_paymentMethodLabel(order.paymentMethod)}'),
           if (order.createdAt.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text('Tanggal: ${order.createdAt}'),
