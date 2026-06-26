@@ -88,6 +88,7 @@ class _PaymentPendingPageState extends State<PaymentPendingPage>
 
   void _handlePaymentCallback(PaymentCallbackData data) {
     if (!mounted) return;
+    if (!_isCallbackForCurrentOrder(data)) return;
 
     if (data.isSuccess) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -102,6 +103,12 @@ class _PaymentPendingPageState extends State<PaymentPendingPage>
         backgroundColor: Colors.red,
       ),
     );
+  }
+
+  bool _isCallbackForCurrentOrder(PaymentCallbackData data) {
+    final reference = data.reference;
+    if (reference == null || reference.isEmpty) return true;
+    return reference == 'INV-${widget.order.id}';
   }
 
   void _goToSuccess(OrderModel order) {
