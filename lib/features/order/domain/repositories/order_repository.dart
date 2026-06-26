@@ -10,4 +10,6 @@ abstract class OrderRepository {
   Future<List<OrderModel>> getMyOrders({int page, int limit});
 
   Future<OrderModel> getOrderDetail(int orderId);
+
+  Future<OrderModel> markPaymentPaid(int orderId);
 }

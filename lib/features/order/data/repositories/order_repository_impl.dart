@@ -48,6 +48,15 @@ class OrderRepositoryImpl implements OrderRepository {
     return OrderModel.fromJson(data);
   }
 
+  @override
+  Future<OrderModel> markPaymentPaid(int orderId) async {
+    final response = await DioClient.instance.post(
+      '${ApiConstants.orders}/$orderId/mark-paid',
+    );
+    final data = _extractData(response.data);
+    return OrderModel.fromJson(data);
+  }
+
   Map<String, dynamic> _extractData(dynamic responseData) {
     final rawData = responseData is Map<String, dynamic>
         ? responseData['data']
