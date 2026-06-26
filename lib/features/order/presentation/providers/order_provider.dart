@@ -112,6 +112,30 @@ class OrderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<OrderModel?> markPaymentPaid(int orderId) async {
+    _paymentCheckStatus = PaymentCheckStatus.checking;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final order = await _repository.markPaymentPaid(orderId);
+      _lastOrder = order;
+      _paymentCheckStatus = PaymentCheckStatus.paid;
+      notifyListeners();
+      return order;
+    } on DioException catch (e) {
+      _error =
+          e.response?.data['message'] as String? ?? 'Gagal mengonfirmasi pembayaran';
+      _paymentCheckStatus = PaymentCheckStatus.error;
+    } catch (e) {
+      _error = 'Gagal mengonfirmasi pembayaran.';
+      _paymentCheckStatus = PaymentCheckStatus.error;
+    }
+
+    notifyListeners();
+    return null;
+  }
+
   void startPaymentPolling(int orderId) {
     stopPaymentPolling();
     _paymentCheckStatus = PaymentCheckStatus.idle;
