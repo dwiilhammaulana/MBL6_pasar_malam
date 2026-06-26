@@ -68,10 +68,15 @@ class _PaymentPendingPageState extends State<PaymentPendingPage>
     );
     final uri = Uri.parse(deeplink);
 
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (mounted) setState(() => _payLaunched = true);
-    } else if (mounted) {
+    try {
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (mounted && launched) setState(() => _payLaunched = true);
+      if (launched || !mounted) return;
+    } catch (_) {
+      if (!mounted) return;
+    }
+
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Aplikasi Dompet Kampus Global tidak ditemukan'),
