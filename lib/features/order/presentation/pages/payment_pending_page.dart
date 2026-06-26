@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/routes/app_router.dart';
+import '../../../../core/services/global_institute_pay_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../data/models/order_model.dart';
 import '../providers/order_provider.dart';
@@ -19,7 +22,8 @@ class PaymentPendingPage extends StatefulWidget {
 
 class _PaymentPendingPageState extends State<PaymentPendingPage>
     with WidgetsBindingObserver {
-  bool _gopayLaunched = false;
+  StreamSubscription<PaymentCallbackData>? _callbackSub;
+  bool _payLaunched = false;
 
   @override
   void initState() {
@@ -28,12 +32,22 @@ class _PaymentPendingPageState extends State<PaymentPendingPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final orderProvider = context.read<OrderProvider>();
       orderProvider.startPaymentPolling(widget.order.id);
-      if (widget.order.paymentMethod == 'gopay') _launchGopay();
+      if (widget.order.paymentMethod == 'global_institute_pay') {
+        _launchGlobalInstitutePay();
+      }
     });
+
+    final pending = GlobalInstitutePayService().consumePendingCallback();
+    if (pending != null) _handlePaymentCallback(pending);
+
+    _callbackSub = GlobalInstitutePayService().onCallback.listen(
+      _handlePaymentCallback,
+    );
   }
 
   @override
   void dispose() {
+    _callbackSub?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     context.read<OrderProvider>().stopPaymentPolling();
     super.dispose();
@@ -41,32 +55,48 @@ class _PaymentPendingPageState extends State<PaymentPendingPage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && _gopayLaunched) {
+    if (state == AppLifecycleState.resumed && _payLaunched) {
       context.read<OrderProvider>().checkPaymentStatus(widget.order.id);
     }
   }
 
-  Future<void> _launchGopay() async {
-    final deeplink = widget.order.gopayDeeplink;
-    if (deeplink == null || deeplink.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Link GoPay belum tersedia')),
-      );
-      return;
-    }
-
+  Future<void> _launchGlobalInstitutePay() async {
+    final deeplink = GlobalInstitutePayService.buildDeeplinkUrl(
+      orderId: widget.order.id,
+      amount: widget.order.totalAmount,
+      description: widget.order.notes.isNotEmpty ? widget.order.notes : null,
+    );
     final uri = Uri.parse(deeplink);
+
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (mounted) setState(() => _gopayLaunched = true);
+      if (mounted) setState(() => _payLaunched = true);
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Aplikasi GoPay tidak ditemukan di perangkat ini'),
+          content: Text('Aplikasi Dompet Kampus Global tidak ditemukan'),
           backgroundColor: Colors.red,
         ),
       );
     }
+  }
+
+  void _handlePaymentCallback(PaymentCallbackData data) {
+    if (!mounted) return;
+
+    if (data.isSuccess) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _goToSuccess(widget.order);
+      });
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Pembayaran gagal (status: ${data.status})'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   void _goToSuccess(OrderModel order) {
@@ -109,11 +139,11 @@ class _PaymentPendingPageState extends State<PaymentPendingPage>
                 onCheckStatus: () =>
                     orderProvider.checkPaymentStatus(order.id),
               )
-            : _GopayBody(
+            : _GlobalInstitutePayBody(
                 order: order,
                 paymentStatus: paymentStatus,
-                gopayLaunched: _gopayLaunched,
-                onOpenGopay: _launchGopay,
+                payLaunched: _payLaunched,
+                onOpenApp: _launchGlobalInstitutePay,
                 onCheckStatus: () =>
                     orderProvider.checkPaymentStatus(order.id),
               ),
@@ -225,18 +255,18 @@ class _VirtualAccountBody extends StatelessWidget {
   }
 }
 
-class _GopayBody extends StatelessWidget {
+class _GlobalInstitutePayBody extends StatelessWidget {
   final OrderModel order;
   final PaymentCheckStatus paymentStatus;
-  final bool gopayLaunched;
-  final VoidCallback onOpenGopay;
+  final bool payLaunched;
+  final VoidCallback onOpenApp;
   final VoidCallback onCheckStatus;
 
-  const _GopayBody({
+  const _GlobalInstitutePayBody({
     required this.order,
     required this.paymentStatus,
-    required this.gopayLaunched,
-    required this.onOpenGopay,
+    required this.payLaunched,
+    required this.onOpenApp,
     required this.onCheckStatus,
   });
 
@@ -247,25 +277,47 @@ class _GopayBody extends StatelessWidget {
       children: [
         _PaymentHeader(
           icon: Icons.account_balance_wallet,
-          color: const Color(0xFF00ADB5),
-          title: 'Bayar dengan GoPay',
+          color: const Color(0xFF1A237E),
+          title: 'Bayar dengan Dompet Kampus Global',
           subtitle: 'Order #${order.id} - ${CurrencyFormatter.rupiah(order.totalAmount)}',
         ),
         const SizedBox(height: 24),
         _TotalBox(total: order.totalAmount),
         const SizedBox(height: 24),
-        _StepText(
-          gopayLaunched
-              ? 'Aplikasi GoPay sudah dibuka.'
-              : 'Kamu akan diarahkan ke aplikasi GoPay.',
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A237E).withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.verified_user, color: Color(0xFF1A237E)),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text('Pembayaran diamankan dengan PIN dan 2FA.'),
+              ),
+            ],
+          ),
         ),
-        const _StepText('Konfirmasi pembayaran di GoPay.'),
+        const SizedBox(height: 20),
+        _StepText(
+          payLaunched
+              ? 'Aplikasi Dompet Kampus Global sudah dibuka.'
+              : 'Kamu akan diarahkan ke aplikasi Dompet Kampus Global.',
+        ),
+        const _StepText('Konfirmasi detail merchant dan nominal pembayaran.'),
+        const _StepText('Masukkan PIN lalu selesaikan verifikasi OTP atau TOTP.'),
         const _StepText('Kembali ke aplikasi dan cek status pembayaran.'),
         const SizedBox(height: 24),
         FilledButton.icon(
-          onPressed: onOpenGopay,
+          onPressed: onOpenApp,
           icon: const Icon(Icons.open_in_new),
-          label: Text(gopayLaunched ? 'Buka Kembali GoPay' : 'Buka GoPay'),
+          label: Text(
+            payLaunched
+                ? 'Buka Kembali Dompet Kampus'
+                : 'Buka Dompet Kampus Global',
+          ),
         ),
         const SizedBox(height: 12),
         _CheckStatusButton(
