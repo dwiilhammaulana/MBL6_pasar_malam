@@ -40,6 +40,7 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
     }
 
     if (state != AppLifecycleState.resumed) return;
+    if (!mounted) return;
 
     final backgroundedAt = _backgroundedAt;
     _backgroundedAt = null;
@@ -53,7 +54,10 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
 
     final lockProvider = context.read<BiometricLockProvider>();
     lockProvider.lock();
-    lockProvider.unlock();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<BiometricLockProvider>().unlock();
+    });
   }
 
   @override
