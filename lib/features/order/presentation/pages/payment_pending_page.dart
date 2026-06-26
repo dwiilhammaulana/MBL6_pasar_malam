@@ -92,7 +92,7 @@ class _PaymentPendingPageState extends State<PaymentPendingPage>
 
     if (data.isSuccess) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _goToSuccess(widget.order);
+        if (mounted) _confirmPaymentSuccess();
       });
       return;
     }
@@ -109,6 +109,14 @@ class _PaymentPendingPageState extends State<PaymentPendingPage>
     final reference = data.reference;
     if (reference == null || reference.isEmpty) return true;
     return reference == 'INV-${widget.order.id}';
+  }
+
+  Future<void> _confirmPaymentSuccess() async {
+    final order = await context.read<OrderProvider>().markPaymentPaid(
+      widget.order.id,
+    );
+    if (!mounted || order == null) return;
+    _goToSuccess(order);
   }
 
   void _goToSuccess(OrderModel order) {
