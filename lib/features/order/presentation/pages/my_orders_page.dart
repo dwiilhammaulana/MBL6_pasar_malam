@@ -73,7 +73,7 @@ class _OrderCard extends StatelessWidget {
 
   String _paymentMethodLabel(String method) => switch (method) {
     'gopay' => 'GoPay',
-    'global_institute_pay' => 'Dompet Kampus Global',
+    'global_institute_pay' => 'Dompet Jajan',
     'bank_transfer' => 'Transfer Bank',
     'virtual_account' => 'Virtual Account',
     _ => method,

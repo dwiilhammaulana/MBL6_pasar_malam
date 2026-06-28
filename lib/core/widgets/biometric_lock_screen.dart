@@ -113,7 +113,7 @@ class _BiometricLockScreenState extends State<BiometricLockScreen>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Gunakan biometrik atau kunci layar perangkat untuk membuka kembali Pasar Malam.',
+                    'Gunakan biometrik atau kunci layar perangkat untuk membuka kembali e_commerce.',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: isDark

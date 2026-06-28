@@ -98,8 +98,8 @@ class GlobalInstitutePayService {
       scheme: 'dompetkampus',
       host: 'pay',
       queryParameters: {
-        'merchant_id': 'MCH_PASAR_MALAM',
-        'merchant_name': 'Pasar Malam',
+        'merchant_id': 'MCH_E_COMMERCE',
+        'merchant_name': 'e_commerce',
         'amount': amount.toStringAsFixed(0),
         'description': (description != null && description.isNotEmpty)
             ? description

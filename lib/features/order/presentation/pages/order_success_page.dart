@@ -11,7 +11,7 @@ class OrderSuccessPage extends StatelessWidget {
 
   String _paymentMethodLabel(String method) => switch (method) {
     'gopay' => 'GoPay',
-    'global_institute_pay' => 'Dompet Kampus Global',
+    'global_institute_pay' => 'Dompet Jajan',
     'bank_transfer' => 'Transfer Bank',
     'virtual_account' => 'Virtual Account',
     _ => method,
@@ -29,6 +29,7 @@ class OrderSuccessPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isPaid = order.isPaid;
 
     return Scaffold(
       body: SafeArea(
@@ -41,23 +42,24 @@ class OrderSuccessPage extends StatelessWidget {
                 width: 92,
                 height: 92,
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
+                  color: (isPaid ? Colors.green : colorScheme.primary)
+                      .withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
+                child: Icon(
+                  isPaid ? Icons.check_circle : Icons.receipt_long,
+                  color: isPaid ? Colors.green : colorScheme.primary,
                   size: 64,
                 ),
               ),
             ),
             const SizedBox(height: 20),
             Text(
-              'Pesanan Berhasil!',
+              isPaid ? 'Pembayaran Berhasil!' : 'Pesanan Dibuat',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(

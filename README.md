@@ -1,90 +1,164 @@
-# Jual Alat Pemadam Kebakaran
+# e_commerce
 
 | Info | Detail |
-|------|--------|
-| **Nama** | Dwi Ilham Maulana |
-| **Kelas** | TISE23M |
-| **Mata Kuliah** | Mobile Aplikasi Lanjutan |
-| **Ujian** | Ujian Tengah Semester (UTS) |
+| --- | --- |
+| Nama | Dwi Ilham Maulana |
+| Kelas | TISE23M |
+| Mata Kuliah | KB1154 - Aplikasi Mobile Lanjutan |
+| Tugas | UAS - Integrasi E-Commerce dengan E-Money menggunakan Deep Link |
 
----
+## Deskripsi
 
-## Struktur Folder `lib`
+e_commerce adalah aplikasi Flutter merchant yang digunakan untuk melihat produk, mengelola keranjang, checkout, dan melakukan pembayaran menggunakan aplikasi e-money Dompet Jajan.
 
-Aplikasi ini mengadopsi arsitektur modular yang memisahkan antara lapisan **core** (inti) dan **features** (fitur bisnis), sehingga kode lebih terorganisir dan mudah dikembangkan.
+Integrasi pembayaran dilakukan dengan app-to-app deep link. Aplikasi e_commerce membuka aplikasi Dompet Jajan menggunakan skema `dompetkampus://pay`, lalu menerima hasil pembayaran kembali melalui skema callback `pasarmalam://payment-callback`.
 
-```
+## Fitur Utama
+
+- Login dan register menggunakan Firebase Authentication.
+- Integrasi backend Golang untuk data produk, order, dan status pembayaran.
+- Daftar produk, detail produk, keranjang, checkout, dan riwayat pesanan.
+- Metode pembayaran Dompet Jajan.
+- Halaman pending payment untuk menunggu callback dari aplikasi e-money.
+- Deep link callback untuk mengubah status order menjadi paid.
+- Biometric lock untuk keamanan aplikasi.
+
+## Arsitektur Singkat
+
+Struktur kode menggunakan pemisahan `core` dan `features`.
+
+```text
 lib/
-├── main.dart               # Entry point aplikasi Flutter
-├── firebase_options.dart   # Konfigurasi Firebase (auto-generated oleh FlutterFire)
-├── core/
-│   ├── constants/          # Konstanta global (teks, nilai tetap, dll.)
-│   ├── routes/             # Konfigurasi navigasi dan routing halaman
-│   ├── services/           # Layanan umum (API service, konfigurasi, dll.)
-│   └── theme/              # Tema aplikasi (warna, typography, gaya global)
-└── features/
-    ├── auth/               # Fitur autentikasi (Login & Register)
-    └── dashboard/          # Fitur halaman utama (Dashboard)
+|-- main.dart
+|-- firebase_options.dart
+|-- core/
+|   |-- constants/
+|   |-- providers/
+|   |-- routes/
+|   |-- services/
+|   |-- theme/
+|   `-- widgets/
+`-- features/
+    |-- auth/
+    |-- cart/
+    |-- dashboard/
+    |-- order/
+    `-- product/
 ```
 
-### Penjelasan Singkat
+| Bagian | Fungsi |
+| --- | --- |
+| `core/constants` | Konfigurasi URL API dan konstanta global. |
+| `core/services` | Service umum, termasuk deep link payment. |
+| `core/routes` | Konfigurasi navigasi halaman. |
+| `features/auth` | Login, register, dan autentikasi pengguna. |
+| `features/cart` | Keranjang dan checkout. |
+| `features/order` | Order, status pembayaran, dan riwayat transaksi. |
+| `features/product` | Daftar dan detail produk. |
 
-| File / Folder | Fungsi |
-|---|---|
-| `main.dart` | Titik masuk utama yang menginisialisasi dan menjalankan aplikasi |
-| `firebase_options.dart` | Menyimpan konfigurasi koneksi ke layanan Firebase |
-| `core/constants/` | Variabel konstanta yang digunakan secara global |
-| `core/routes/` | Definisi alur navigasi antar halaman |
-| `core/services/` | Kumpulan service umum yang dapat digunakan lintas fitur |
-| `core/theme/` | Konfigurasi tampilan global (warna, font, style) |
-| `features/auth/` | UI, state management, dan logika autentikasi pengguna |
-| `features/dashboard/` | UI, state management, dan logika halaman utama |
+State management utama menggunakan `Provider`, komunikasi API menggunakan `Dio`, dan data sensitif disimpan dengan `flutter_secure_storage`.
 
----
+## Konfigurasi Backend
 
-## Cara Menjalankan Aplikasi
+Backend E-Commerce berjalan pada port `8081`.
 
-Aplikasi ini terdiri dari dua bagian terpisah: **Frontend** (Flutter) dan **Backend** (Golang). Keduanya harus dijalankan bersamaan agar aplikasi berfungsi penuh.
-
-### 1. Backend — Golang
-
-> Repository backend: [github.com/dwiilhammaulana/MBL5_BackendGolang](https://github.com/dwiilhammaulana/MBL5_BackendGolang)
-
-Buka terminal pada direktori proyek backend, lalu jalankan:
-
-```bash
-go run main.go
+```text
+Base URL Flutter: http://127.0.0.1:8081/v1
+Folder backend: ../be-E_commerce
 ```
 
-### 2. Frontend — Flutter
+Jika menjalankan aplikasi di HP Android fisik lewat USB, aktifkan reverse port:
 
-Buka terminal pada root direktori proyek Flutter (lokasi file `pubspec.yaml`), kemudian jalankan perintah berikut secara berurutan:
+```powershell
+adb reverse tcp:8081 tcp:8081
+```
 
-```bash
-# 1. Install semua dependensi
+## Cara Menjalankan
+
+1. Jalankan backend E-Commerce.
+
+```powershell
+cd "D:\kulyah\smt 6\mobile app lanjutan\12\inside dosen\be-E_commerce"
+go run .
+```
+
+2. Jalankan aplikasi Flutter.
+
+```powershell
+cd "D:\kulyah\smt 6\mobile app lanjutan\12\inside dosen\e_commerce"
 flutter pub get
-
-# 2. Pastikan emulator/device sudah terhubung, lalu jalankan aplikasi
+adb reverse tcp:8081 tcp:8081
 flutter run
 ```
 
----
+3. Pastikan endpoint health dapat diakses dari device.
 
-## Demo Aplikasi
+```text
+http://127.0.0.1:8081/v1/health
+```
 
-Tonton video demo dan review aplikasi melalui tautan berikut:
-([Link YT](https://www.youtube.com/watch?v=vy1y_I9a9O4)
+## Deep Link Payment
 
+### Deep link keluar ke Dompet Jajan
 
-maka dari itu saya alihkan ke Link Drive saja ya pak, berikut untuk linknya:
-[Link vidio ke Drive](https://drive.google.com/file/d/1VHbm3ocWMGKUGypx9lC6KCBXXScNWZSB/view)
+```text
+dompetkampus://pay?merchant_id=MCH_E_COMMERCE&merchant_name=e_commerce&amount=75000&description=Order%20%231&reference=INV-1&callback=pasarmalam%3A%2F%2Fpayment-callback
+```
 
----
+### Callback masuk dari Dompet Jajan
 
-## Tech Stack
+```text
+pasarmalam://payment-callback?status=success&reference=INV-1&transaction_id=TXN789
+```
 
-| Layer | Teknologi |
-|-------|-----------|
-| Frontend | Flutter |
-| Backend | Golang |
-| Database / Auth | Firebase |
+Jika callback berhasil dan `reference` sesuai order, aplikasi akan memanggil endpoint backend:
+
+```text
+POST /v1/orders/:id/mark-paid
+```
+
+## Test Manual
+
+1. Login ke aplikasi e_commerce.
+2. Pilih produk dan masukkan ke keranjang.
+3. Checkout menggunakan metode pembayaran Dompet Jajan.
+4. Pastikan aplikasi Dompet Jajan terbuka.
+5. Selesaikan pembayaran di aplikasi Dompet Jajan.
+6. Pastikan kembali ke e_commerce dan status order menjadi paid.
+
+Callback juga dapat dites manual dengan ADB:
+
+```powershell
+adb shell am start -a android.intent.action.VIEW -d "pasarmalam://payment-callback?status=success&reference=INV-1&transaction_id=TXN789"
+```
+
+## Dependensi Utama
+
+| Dependency | Fungsi |
+| --- | --- |
+| `provider` | State management. |
+| `firebase_core`, `firebase_auth` | Autentikasi Firebase. |
+| `google_sign_in` | Login Google. |
+| `dio` | HTTP client ke backend. |
+| `flutter_secure_storage` | Penyimpanan token dan data sensitif. |
+| `local_auth` | Biometric lock. |
+| `app_links` | Deep link callback. |
+| `url_launcher` | Membuka aplikasi e-money melalui deep link. |
+
+## Build APK
+
+```powershell
+flutter build apk --debug
+```
+
+atau untuk release:
+
+```powershell
+flutter build apk --release
+```
+
+## Dokumentasi Pengumpulan
+
+- Screenshot aplikasi: tambahkan pada bagian ini sebelum dikumpulkan.
+- Link video presentasi: isi dengan link YouTube atau Google Drive.
+- APK: lampirkan file hasil build dari folder `build/app/outputs/flutter-apk/`.

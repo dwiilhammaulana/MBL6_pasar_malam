@@ -51,7 +51,7 @@ class BiometricLockProvider extends ChangeNotifier {
 
     try {
       await _service.authenticate(
-        reason: 'Verifikasi identitas Anda untuk membuka Pasar Malam',
+        reason: 'Verifikasi identitas Anda untuk membuka e_commerce',
       );
       _isLocked = false;
       _errorMessage = null;

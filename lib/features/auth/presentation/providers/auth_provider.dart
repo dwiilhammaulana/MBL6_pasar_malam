@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/services/secure_storage.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 
@@ -23,6 +24,24 @@ class AuthProvider extends ChangeNotifier {
   User? get firebaseUser => _firebaseUser;
   String? get errorMessage => _errorMessage;
   bool get isLoading => _status == AuthStatus.loading;
+
+  Future<bool> restoreSession() async {
+    _setLoading();
+
+    final token = await SecureStorageService.getToken();
+    _firebaseUser = FirebaseAuth.instance.currentUser;
+
+    if (token == null || token.isEmpty) {
+      _status = AuthStatus.unauthenticated;
+      notifyListeners();
+      return false;
+    }
+
+    _errorMessage = null;
+    _status = AuthStatus.authenticated;
+    notifyListeners();
+    return true;
+  }
 
   Future<bool> register({
     required String name,

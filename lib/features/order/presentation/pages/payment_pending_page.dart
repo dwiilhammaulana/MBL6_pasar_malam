@@ -79,7 +79,7 @@ class _PaymentPendingPageState extends State<PaymentPendingPage>
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Aplikasi Dompet Kampus Global tidak ditemukan'),
+          content: Text('Aplikasi Dompet Jajan tidak ditemukan'),
           backgroundColor: Colors.red,
         ),
       );
@@ -298,7 +298,7 @@ class _GlobalInstitutePayBody extends StatelessWidget {
         _PaymentHeader(
           icon: Icons.account_balance_wallet,
           color: const Color(0xFF1A237E),
-          title: 'Bayar dengan Dompet Kampus Global',
+          title: 'Bayar dengan Dompet Jajan',
           subtitle: 'Order #${order.id} - ${CurrencyFormatter.rupiah(order.totalAmount)}',
         ),
         const SizedBox(height: 24),
@@ -323,8 +323,8 @@ class _GlobalInstitutePayBody extends StatelessWidget {
         const SizedBox(height: 20),
         _StepText(
           payLaunched
-              ? 'Aplikasi Dompet Kampus Global sudah dibuka.'
-              : 'Kamu akan diarahkan ke aplikasi Dompet Kampus Global.',
+              ? 'Aplikasi Dompet Jajan sudah dibuka.'
+              : 'Kamu akan diarahkan ke aplikasi Dompet Jajan.',
         ),
         const _StepText('Konfirmasi detail merchant dan nominal pembayaran.'),
         const _StepText('Masukkan PIN lalu selesaikan verifikasi OTP atau TOTP.'),
@@ -336,7 +336,7 @@ class _GlobalInstitutePayBody extends StatelessWidget {
           label: Text(
             payLaunched
                 ? 'Buka Kembali Dompet Kampus'
-                : 'Buka Dompet Kampus Global',
+                : 'Buka Dompet Jajan',
           ),
         ),
         const SizedBox(height: 12),

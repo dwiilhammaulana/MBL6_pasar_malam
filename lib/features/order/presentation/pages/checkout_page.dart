@@ -22,8 +22,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   static const _paymentOptions = [
     _PaymentOption(
       value: 'global_institute_pay',
-      label: 'Dompet Kampus Global',
-      subtitle: 'Bayar via Dompet Kampus Global',
+      label: 'Dompet Jajan',
+      subtitle: 'Bayar via Dompet Jajan',
       icon: Icons.account_balance_wallet,
       iconColor: Color(0xFF1A237E),
     ),
@@ -60,7 +60,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   Future<void> _placeOrder() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedPaymentMethod == null) {
+    final selectedPaymentMethod = _selectedPaymentMethod;
+    if (selectedPaymentMethod == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Pilih metode pembayaran terlebih dahulu'),
@@ -85,7 +86,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final success = await orderProvider.checkout(
       shippingAddress: _addressCtrl.text.trim(),
       notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
-      paymentMethod: _selectedPaymentMethod!,
+      paymentMethod: selectedPaymentMethod,
     );
 
     if (!mounted) return;
@@ -103,8 +104,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (!mounted) return;
     final order = orderProvider.lastOrder!;
     final needsPayment =
-        order.paymentMethod == 'virtual_account' ||
-        order.paymentMethod == 'global_institute_pay';
+        selectedPaymentMethod == 'virtual_account' ||
+        selectedPaymentMethod == 'global_institute_pay';
 
     Navigator.pushNamedAndRemoveUntil(
       context,
@@ -151,7 +152,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 (item) => ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(item.product.name),
-                  subtitle: Text('${item.quantity} x ${CurrencyFormatter.rupiah(item.product.price)}'),
+                  subtitle: Text(
+                    '${item.quantity} x ${CurrencyFormatter.rupiah(item.product.price)}',
+                  ),
                   trailing: Text(CurrencyFormatter.rupiah(item.subtotal)),
                 ),
               ),
@@ -159,7 +162,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Total', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text(
+                  'Total',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 Text(
                   CurrencyFormatter.rupiah(cart?.total ?? 0),
                   style: TextStyle(
@@ -201,7 +207,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
               (option) => _PaymentOptionCard(
                 option: option,
                 isSelected: _selectedPaymentMethod == option.value,
-                onTap: () => setState(() => _selectedPaymentMethod = option.value),
+                onTap: () =>
+                    setState(() => _selectedPaymentMethod = option.value),
               ),
             ),
             const SizedBox(height: 28),
@@ -230,9 +237,9 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     title,
-    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-      fontWeight: FontWeight.bold,
-    ),
+    style: Theme.of(
+      context,
+    ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
   );
 }
 
@@ -257,10 +264,7 @@ class _InlineError extends StatelessWidget {
           Icon(Icons.error_outline, color: colorScheme.error),
           const SizedBox(width: 10),
           Expanded(child: Text(message)),
-          TextButton(
-            onPressed: onRetry,
-            child: const Text('Coba Lagi'),
-          ),
+          TextButton(onPressed: onRetry, child: const Text('Coba Lagi')),
         ],
       ),
     );
@@ -308,7 +312,9 @@ class _PaymentOptionCard extends StatelessWidget {
             color: colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? colorScheme.primary : Theme.of(context).dividerColor,
+              color: isSelected
+                  ? colorScheme.primary
+                  : Theme.of(context).dividerColor,
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -320,12 +326,16 @@ class _PaymentOptionCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(option.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      option.label,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Text(option.subtitle),
                   ],
                 ),
               ),
-              if (isSelected) Icon(Icons.check_circle, color: colorScheme.primary),
+              if (isSelected)
+                Icon(Icons.check_circle, color: colorScheme.primary),
             ],
           ),
         ),

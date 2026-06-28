@@ -13,7 +13,8 @@ import '../../features/order/presentation/pages/checkout_page.dart';
 import '../../features/order/presentation/pages/my_orders_page.dart';
 import '../../features/order/presentation/pages/order_success_page.dart';
 import '../../features/order/presentation/pages/payment_pending_page.dart';
-import '../services/secure_storage.dart';
+import '../../features/order/presentation/providers/order_provider.dart';
+import '../services/global_institute_pay_service.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -72,11 +73,42 @@ class _SplashPageState extends State<SplashPage> {
   Future<void> _checkAuth() async {
     if (!mounted) return;
 
-    final token = await SecureStorageService.getToken();
+    final isAuthenticated = await context.read<AuthProvider>().restoreSession();
     if (!mounted) return;
 
-    final route = token != null ? AppRouter.dashboard : AppRouter.login;
-    Navigator.pushReplacementNamed(context, route);
+    if (!isAuthenticated) {
+      Navigator.pushReplacementNamed(context, AppRouter.login);
+      return;
+    }
+
+    final handledCallback = await _handleColdStartPaymentCallback();
+    if (!mounted || handledCallback) return;
+
+    Navigator.pushReplacementNamed(context, AppRouter.dashboard);
+  }
+
+  Future<bool> _handleColdStartPaymentCallback() async {
+    final callback = GlobalInstitutePayService().consumePendingCallback();
+    if (callback == null || !callback.isSuccess) return false;
+
+    final orderId = _orderIdFromReference(callback.reference);
+    if (orderId == null) return false;
+
+    final order = await context.read<OrderProvider>().markPaymentPaid(orderId);
+    if (!mounted || order == null) return false;
+
+    Navigator.pushReplacementNamed(
+      context,
+      AppRouter.orderSuccess,
+      arguments: order,
+    );
+    return true;
+  }
+
+  int? _orderIdFromReference(String? reference) {
+    if (reference == null || reference.isEmpty) return null;
+    final match = RegExp(r'^INV-(\d+)$').firstMatch(reference);
+    return match == null ? null : int.tryParse(match.group(1)!);
   }
 
   @override
@@ -95,6 +127,9 @@ class AuthGuard extends StatelessWidget {
     return switch (status) {
       AuthStatus.authenticated => child,
       AuthStatus.emailNotVerified => const VerifyEmailPage(),
+      AuthStatus.initial || AuthStatus.loading => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
       _ => const LoginPage(),
     };
   }
