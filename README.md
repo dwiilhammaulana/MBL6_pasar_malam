@@ -167,6 +167,40 @@ flutter build apk --release
 
 ## Dokumentasi Pengumpulan
 
-- Screenshot aplikasi: tambahkan pada bagian ini sebelum dikumpulkan.
-- Link video presentasi: https://youtu.be/D5u48pCRPgg
-- APK: lampirkan file hasil build dari folder `build/app/outputs/flutter-apk/`.
+- Video presentasi: [https://youtu.be/D5u48pCRPgg](https://youtu.be/D5u48pCRPgg)
+- APK: lampirkan file dari folder `build/app/outputs/flutter-apk/`.
+- Screenshot aplikasi: lihat bagian di bawah.
+
+## Screenshot
+
+### Aplikasi E-Money
+
+| | | |
+| --- | --- | --- |
+| <img src="image.png" alt="Splash atau halaman awal" width="220"> | <img src="WhatsApp%20Image%202026-06-28%20at%2014.12.58.jpeg" alt="Dokumentasi WhatsApp" width="220"> | <img src="image-1.png" alt="E-Money 1" width="220"> |
+| <img src="image-2.png" alt="E-Money 2" width="220"> | <img src="image-3.png" alt="E-Money 3" width="220"> | <img src="image-4.png" alt="E-Money 4" width="220"> |
+| <img src="image-5.png" alt="E-Money 5" width="220"> | <img src="image-6.png" alt="E-Money 6" width="220"> | <img src="image-7.png" alt="E-Money 7" width="220"> |
+| <img src="image-8.png" alt="E-Money 8" width="220"> | | |
+
+### Integrasi E-Commerce
+
+| | | |
+| --- | --- | --- |
+| <img src="image-9.png" alt="E-Commerce 1" width="220"> | <img src="image-10.png" alt="E-Commerce 2" width="220"> | <img src="image-11.png" alt="E-Commerce 3" width="220"> |
+| <img src="image-13.png" alt="E-Commerce 4" width="220"> | <img src="image-12.png" alt="E-Commerce 5" width="220"> | <img src="image-14.png" alt="E-Commerce 6" width="220"> |
+| <img src="image-15.png" alt="E-Commerce 7" width="220"> | | |
+
+## Checklist UAS
+
+| Kriteria | Status |
+| --- | --- |
+| Aplikasi E-Money tersedia | Selesai |
+| Backend E-Money tersedia | Selesai |
+| Integrasi deep link dari E-Commerce ke E-Money | Selesai |
+| Callback pembayaran dari E-Money ke E-Commerce | Selesai |
+| Autentikasi Firebase | Selesai |
+| 2FA | Selesai |
+| FCM | Selesai |
+| APK dapat dibuild | Selesai |
+| README berisi cara menjalankan dan test manual | Selesai |
+| Screenshot dan video presentasi | Selesai |
